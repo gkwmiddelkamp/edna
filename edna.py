@@ -27,7 +27,7 @@
 #   $Id: edna.py,v 1.84 2006/05/26 01:15:56 syrk Exp $
 #
 
-__version__ = '0.6'
+__version__ = '0.6-plux-fork'
 
 import SocketServer
 import BaseHTTPServer
@@ -48,6 +48,11 @@ import ezt
 import MP3Info
 import md5
 from scheduler import Scheduler
+try:
+  from OpenSSL import SSL
+  sslSupport = 'yes'
+except ImportError:
+  sslSupport = 'no'
 try:
   import signal
   signalSupport = 'yes'
@@ -104,6 +109,7 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
     config.add_section('sources')
     config.add_section('acl')
     config.add_section('extra')
+    config.add_section('filename_cache')
 
     # set up some defaults for the web server.
     d = config.defaults()
@@ -124,6 +130,8 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
     d['zip'] = '0'
     d['refresh_offset'] = 0
     d['refresh_interval'] = 0
+    d['https'] = '0'
+    d['sslcert'] = 'server.pem'
 
     config.read(fname)
 
@@ -244,9 +252,37 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
 
     self.port = config.getint('server', 'port')
     try:
-        SocketServer.TCPServer.__init__(self,
+        SocketServer.BaseServer.__init__(self,
             (config.get('server', 'binding-hostname'), self.port),
             EdnaRequestHandler)
+
+        if config.get('server', 'https') == '1':
+          global sslSupport
+          if sslSupport == 'no':
+            self.log_message("edna: Can't enable https, you need to install module \"pyopenssl\".")
+            raise SystemExit
+
+          ctx = SSL.Context(SSL.SSLv23_METHOD)
+          fpem = config.get('server', 'sslcert')
+          if debug_level == 1:
+            print "HTTPS enabled"
+            print "Using certificate file:", fpem
+          try:
+            ctx.use_privatekey_file(fpem)
+            ctx.use_certificate_file(fpem)
+          except SSL.Error:
+            self.log_message( "edna: failed to read ssl certificate: %s" % fpem )
+            raise
+
+          self.socket = SSL.Connection(ctx, socket.socket(self.address_family, 
+                                                          self.socket_type))
+          self.server_bind()
+          self.server_activate()
+        else:
+          if debug_level == 1:
+            print "HTTPS disabled"
+
+
     except socket.error, value:
         self.log_message( "edna: bind(): %s" % str(value[1]) )
         raise SystemExit
@@ -905,9 +941,13 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def build_url(self, url, file=''):
     host = self.server.name_prefix or self.headers.getheader('host') or self.server.server_name
+    if self.server.config.get('server', 'https') == '1':
+      protocol = 'https'
+    else:
+      protocol = 'http'
     if string.find(host, ':'):
-      return 'http://%s%s/%s' % (host, url, urllib.quote(file))
-    return 'http://%s:%s%s/%s' % (host, self.server.server_port, url,
+      return '%s://%s%s/%s' % (protocol, host, url, urllib.quote(file))
+    return '%s://%s:%s%s/%s' % (protocol, host, self.server.server_port, url,
                                   urllib.quote(file))
 
   def translate_path(self):
@@ -956,7 +996,11 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.server.log_message (msg)
 
   def setup(self):
-    SocketServer.StreamRequestHandler.setup(self)
+    if self.server.config.get('server', 'https') == '1':
+      self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
+      self.wfile = socket._fileobject(self.request, "wb", self.wbufsize) 
+    else: 
+      SocketServer.StreamRequestHandler.setup(self)
 
     # wrap the wfile with a class that will eat up "Broken pipe" errors
     self.wfile = _SocketWriter(self.wfile)
@@ -996,6 +1040,14 @@ class _SocketWriter:
         # not a 'Broken pipe' or Connection reset by peer
         # re-raise the error
         raise
+    except SSL.SysCallError, v:
+      if v[0] == 32 or v[0] == 104:
+        raise ClientAbortedException
+      else:
+        # not a 'Broken pipe' or Connection reset by peer
+        # re-raise the error
+        raise
+      
 
 class ClientAbortedException(Exception):
   pass
