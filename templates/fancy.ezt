@@ -20,7 +20,7 @@
 [if-any pictures]
   [for pictures]
   <div id="pictures">
-    <a href="[pictures.href]"><img  width="256" height="256" src="[pictures.href]"></a> &nbsp; 
+    <a href="[pictures.href]"><img  width="256" height="256" src="[pictures.href]"></a>
   </div>
 
   [end]
