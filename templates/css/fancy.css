@@ -1,0 +1,134 @@
+body {
+    background-color: #cddfe4;
+    margin: 30pt;
+}
+#main {
+    background-color: #ffffff;    
+    border-radius: 10px; /* Opera */
+    -moz-border-radius: 10px; /* Firefox */
+    -webkit-border-radius: 10px; /* Webkit */
+    border: 1px solid #97a5a9; 
+    padding: 10pt 10pt;
+
+}
+input#searchtext {
+    border-radius: 10px; /* Opera */
+    -moz-border-radius: 10px; /* Firefox */
+    -webkit-border-radius: 10px; /* Webkit */
+    border: 1px solid #97a5a9; 
+    background-color: #ffffff;
+    padding: 1pt 6pt;
+}
+
+input#searchsubmit {
+    background-color: #e0eaed;
+    border-radius: 10px;
+    -moz-border-radius: 10px; /* Firefox */
+    -webkit-border-radius: 10px; /* Webkit */
+    border: 1px solid #97a5a9; 
+    margin-left: 5pt;
+    padding: 1pt 6pt;
+}
+
+#headertext {
+    font-family: Tahoma;
+    font-size: 9pt;
+    text-align: left
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 80%;
+    width: 80%;
+}
+
+#search {
+    position: absolute;
+    top: 8pt;
+    right: 30pt;
+}
+
+#pictures  {
+    margin: 15pt;    
+    float: left;
+    width: 256px;
+    margin-bottom: 0pt;
+}
+
+th {
+    font-family: Tahoma;
+    font-size: 11.5pt;
+    background-color: #e4e4e4;
+    padding: 4px 10px;
+    border-bottom: 5pt solid #ffffff;
+}
+
+td {
+    vertical-align: middle;
+    padding: 2pt 5pt;
+}
+
+#bottom {
+    background-color: #ffffff;
+    text-align: right;
+    padding-right: 5pt;
+}
+
+tr:hover {
+   background-color: #f0f0f0;
+}
+
+
+table {    
+    vertical-align: middle;
+    font-family: Tahoma;
+    font-size: 9pt;
+    text-align: left;
+    border: 1px solid #97a5a9; 
+    padding-bottom: 3px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color:#ffffff;
+    margin: 15px 0px;
+    
+}
+a:link { 
+    color: #444488;
+    text-decoration:none 
+}
+a:visited { 
+    color: #8888cc;
+    text-decoration:none 
+}
+a:active { 
+    color: #884444;
+    text-decoration:none 
+}
+a:hover { 
+    text-decoration:underline; 
+    color: 0;
+}
+
+
+img {
+    border: 0;
+}
+
+#footer {
+    position: relative;
+    font-family: Tahoma;
+    font-size: 9pt;
+    text-align: left
+    width: 100%;
+}
+#footerleft {
+    position: absolute;
+    left: 5pt;
+    top: 5pt;
+} 
+#footerright {
+    position: absolute;
+    right: 5pt;
+    top: 5pt;
+    text-align:right;
+} 

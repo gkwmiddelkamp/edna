@@ -1,0 +1,135 @@
+<html><head><title>edna: [title]</title>
+<link href="/css/fancy.css" rel="stylesheet" type="text/css" />
+<!-- charset is hard-coded to UTF-8 in the code, DO NOT CHANGE! -->
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head><body>
+
+<div id="search">
+  <form action="/search">
+    <input type="text" name="query" id="searchtext"><input type="submit" value="search" id="searchsubmit">
+  </form>
+</div>
+<div id="main">
+  <div id="header">
+    <div id="headertext">
+      [if-any links]
+        [links]
+      [else]
+        edna: [title]
+      [end]
+    </div>
+  </div>
+[if-any pictures]
+  [for pictures]
+  <div id="pictures">
+    <a href="[pictures.href]"><img  width="256" height="256" src="[pictures.href]"></a> &nbsp; 
+  </div>
+
+  [end]
+[end]
+[if-any subdirs]
+  <table cellpadding="0" cellspacing="0">
+  <tr><th colspan="3">Subdirectories</th></tr>
+  [for subdirs]  
+  <tr>
+    <td>
+      <img src="/resources/silk_folder.png">
+    </td>
+    <td>
+      <a href="[subdirs.href]allrecursive.m3u">
+	<img src="/resources/silk_control_play_blue.png">
+      </a>
+    </td>
+    <td width="100%">
+      <a href="[subdirs.href]">[subdirs.text]</a>
+    </td>
+  </tr>
+  [end]
+  <tr>
+    <td colspan="3" id="bottom">     
+      [if-any display-recursive]
+      <a href="allrecursive.m3u">Play all songs (recursively)</a>&nbsp; |&nbsp;
+      <a href="shufflerecursive.m3u">Shuffle all songs (recursively)</a>
+      [end]
+    </td>
+  </tr>
+  </table>
+[end]
+[if-any songs]
+  <table cellpadding="0" cellspacing="0">
+  <tr><th colspan="3">Songs</th></tr>
+  [for songs]
+  <tr>
+    <td>
+      <a href="[songs.href]">
+	<img src="/resources/silk_disk.png"  >
+      </a>
+    </td>
+    <td>
+      <a href="[songs.href].m3u">
+	<img src="/resources/silk_control_play_blue.png"  >
+      </a>
+    </td>
+    <td width="100%">
+      <a href="[songs.href].m3u">
+	[songs.text]
+      </a>
+    </td>
+  </tr>
+  [end]
+  <tr>
+    <td id="bottom" colspan="3">
+      <a href="all.m3u">Play all songs</a>&nbsp; |&nbsp;
+      <a href="all.zip">Download .zip</a>&nbsp; |&nbsp;
+      <a href="shuffle.m3u">Shuffle all songs</a>
+    </td>
+  </tr>
+  </table>
+[end]
+
+[if-any playlists]
+  <table cellpadding=4 cellspacing="0">
+  <tr><th colspan="3">Playlists</th></tr>
+  [for playlists]
+  <tr>
+    <td>
+      <a href="[playlists.href]">
+	<img src="/resources/silk_control_play_blue.png">
+      </a>
+    </td>
+    <td width="100%">
+      <a href="[playlists.href]">[playlists.text]</a>
+    </td>
+  </tr>
+  [end]
+  </table>
+[end]
+
+[if-any plainfiles]
+  <table cellpadding="0" cellspacing="0">
+  <tr><th colspan="2">Plain Files</th></tr>
+  [for plainfiles]
+  <tr>
+    <td>
+      <a href="[plainfiles.href]">
+	<img src="/resources/silk_page_white_text.png">
+      </a>
+    </td>
+    <td width="100%">
+      <a href="[plainfiles.href]">[plainfiles.text]</a>
+    </td>
+  </tr>
+  [end]
+  </table>
+[end]
+</div>
+<div id="footer">
+  <div id="footerleft">
+    Powered by <a href="http://edna.sourceforge.net/">edna</a>
+  </div>
+  <div id="footerright">
+    <a href="/stats/">Server statistics</a>
+  </div>
+</div>
+
+</body></html>
