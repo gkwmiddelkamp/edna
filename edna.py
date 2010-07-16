@@ -590,7 +590,6 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if nameLower in HIDE_EXACT: continue
         skip = False
         for toHide in HIDE_MATCH:
-          print toHide
           if toHide in nameLower: 
             self.server.debug_message("Hiding %s"%(name))
             # I can't find a way to "continue" up two levels with one call...
