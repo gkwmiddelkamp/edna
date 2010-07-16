@@ -150,6 +150,7 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
     template_path = config.get('server', 'template-dir')
     template_file = config.get('server', 'template')
     template_path = os.path.join(os.path.dirname(fname), template_path)
+    self.template_dir = template_path
     self.resource_dir = os.path.join(os.path.dirname(fname), config.get('server', 'resource-dir'))
     self.fileinfo = config.getint('server', 'fileinfo')
     self.zipmax = config.getint('server', 'zip') * 1024 * 1024
@@ -491,7 +492,16 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     elif path and path[0] == 'resources' and len(path) > 1:
       # a resource file was requested
       fullpath = os.path.join(self.server.resource_dir, path[1])
-      self.serve_file(path[1], fullpath, '/resources');
+      self.serve_file(path[1], fullpath, '/resources')
+    elif path and path[0] == 'css' and len(path) > 1:
+      # a css file was requested
+      fullpath = os.path.join(self.server.template_dir, path[0])
+      fullpath = os.path.join(fullpath, path[1])
+      self.serve_file(path[1], fullpath, '/css')
+    elif path and path[0] == 'favicon.ico':
+      # favicon was requested
+      fullpath = os.path.join(self.server.resource_dir, 'favicon.png')
+      self.serve_file('favicon.ico', fullpath, '/') 
     elif path and path[0][0:7] == 'search?': 
      # the search option is being used 
      self.display_search(path[0][7:]) 
@@ -580,14 +590,15 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if nameLower in HIDE_EXACT: continue
         skip = False
         for toHide in HIDE_MATCH:
+          print toHide
           if toHide in nameLower: 
             self.server.debug_message("Hiding %s"%(name))
             # I can't find a way to "continue" up two levels with one call...
             skip = True
             continue
-          if skip:
-            continue
-
+        if skip:
+          continue
+        
         base, ext = os.path.splitext(name)
         ext = string.lower(ext)
 
@@ -765,7 +776,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       else:
         links.append('<b> / </b><a href="%s/">%s</a>' % (url, text))
 
-    return '<p>' + string.join(links, '\n') + '</p>'
+    return string.join(links, '\n')
 
   def make_list(self, fullpath, url, recursive, shuffle, songs=None):
     # This routine takes a string for 'fullpath' and 'url', a list for
@@ -842,7 +853,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     ext = string.lower(ext)
     mtime = None
     if any_extensions.has_key(ext):
-      if not picture_extensions.has_key(ext):
+      if not picture_extensions.has_key(ext) and ext != '.css':
         # log the request of this file
         ip, port = self.client_address
         self.server.log_user(ip, time.time(), url + '/' + urllib.quote(name))
@@ -1203,6 +1214,7 @@ extensions = {
   '.ogg' : 'application/x-ogg',
   '.m4a' : 'audio/mp4',
   '.mp4' : 'video/mp4',  
+  '.css' : 'text/css',         ### style sheets
   }
 
 # Extensions of images: (and their MIME type)
