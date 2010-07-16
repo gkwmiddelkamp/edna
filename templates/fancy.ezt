@@ -10,14 +10,12 @@
   </form>
 </div>
 <div id="main">
-  <div id="header">
-    <div id="headertext">
-      [if-any links]
-        [links]
-      [else]
-        edna: [title]
-      [end]
-    </div>
+  <div id="headertext">
+    [if-any links]
+      [links]
+    [else]
+      edna: [title]
+    [end]
   </div>
 [if-any pictures]
   [for pictures]
@@ -48,8 +46,8 @@
   <tr>
     <td colspan="3" id="bottom">     
       [if-any display-recursive]
-      <a href="allrecursive.m3u">Play all songs (recursively)</a>&nbsp; |&nbsp;
-      <a href="shufflerecursive.m3u">Shuffle all songs (recursively)</a>
+      <a href="allrecursive.m3u">Play all songs</a>&nbsp; |&nbsp;
+      <a href="shufflerecursive.m3u">Shuffle all songs</a>
       [end]
     </td>
   </tr>

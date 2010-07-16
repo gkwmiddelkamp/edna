@@ -61,9 +61,8 @@ input#searchsubmit {
 th {
     font-family: Tahoma;
     font-size: 11.5pt;
-    background-color: #e4e4e4;
+    background-color: #dadbe1;
     padding: 4px 10px;
-    border-bottom: 5pt solid #ffffff;
 }
 
 td {
@@ -72,13 +71,15 @@ td {
 }
 
 #bottom {
-    background-color: #ffffff;
     text-align: right;
-    padding-right: 5pt;
+}
+
+tr:nth-child(odd) {
+   background-color: #ececee;
 }
 
 tr:hover {
-   background-color: #f0f0f0;
+   background-color: #e1e1e9;
 }
 
 
@@ -88,13 +89,11 @@ table {
     font-size: 9pt;
     text-align: left;
     border: 1px solid #97a5a9; 
-    padding-bottom: 3px;
     width: 100%;
     left: 0;
     right: 0;
     background-color:#ffffff;
-    margin: 15px 0px;
-    
+    margin: 15px 0px;    
 }
 a:link { 
     color: #444488;
