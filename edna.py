@@ -253,40 +253,40 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
 
     self.port = config.getint('server', 'port')
     try:
-        SocketServer.BaseServer.__init__(self,
-            (config.get('server', 'binding-hostname'), self.port),
-            EdnaRequestHandler)
-
-        if config.get('server', 'https') == '1':
-          global sslSupport
-          if sslSupport == 'no':
-            self.log_message("edna: Can't enable https, you need to install module \"pyopenssl\".")
-            raise SystemExit
-
-          ctx = SSL.Context(SSL.SSLv23_METHOD)
-          fpem = config.get('server', 'sslcert')
-          if debug_level == 1:
-            print "HTTPS enabled"
-            print "Using certificate file:", fpem
-          try:
-            ctx.use_privatekey_file(fpem)
-            ctx.use_certificate_file(fpem)
-          except SSL.Error:
-            self.log_message( "edna: failed to read ssl certificate: %s" % fpem )
-            raise
-
-          self.socket = SSL.Connection(ctx, socket.socket(self.address_family, 
-                                                          self.socket_type))
-          self.server_bind()
-          self.server_activate()
-        else:
-          if debug_level == 1:
-            print "HTTPS disabled"
-
-
+      SocketServer.TCPServer.__init__(
+        self, 
+        (config.get('server', 'binding-hostname'), self.port),
+        EdnaRequestHandler)
     except socket.error, value:
-        self.log_message( "edna: bind(): %s" % str(value[1]) )
+      self.log_message( "edna: bind(): %s" % str(value[1]) )
+      raise SystemExit
+
+
+    if config.get('server', 'https') == '1':
+      global sslSupport
+      if sslSupport == 'no':
+        self.log_message("edna: Can't enable https, you need to install module \"pyopenssl\".")
         raise SystemExit
+
+      ctx = SSL.Context(SSL.SSLv23_METHOD)
+      fpem = config.get('server', 'sslcert')
+      if debug_level == 1:
+        print "HTTPS enabled"
+        print "Using certificate file:", fpem
+      try:
+        ctx.use_privatekey_file(fpem)
+        ctx.use_certificate_file(fpem)
+      except SSL.Error:
+        self.log_message( "edna: failed to read ssl certificate: %s" % fpem )
+        raise
+
+      self.socket = SSL.Connection(ctx, socket.socket(self.address_family, 
+                                                          self.socket_type))
+      self.server_bind()
+      self.server_activate()
+    else:
+      if debug_level == 1:
+        print "HTTPS disabled"
 
     # Check the configuration to see if we should be caching filenames.
     # If so, start up the scheduler.
@@ -298,6 +298,8 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
       self.log_message("edna: Scheduling filename cache refresh for every " + self.hms(refresh_interval) + " after " + self.hms(refresh_offset))
       self.filename_cache_refresh_scheduler = Scheduler(refresh_offset, refresh_interval, Server.filename_cache_refresh, [self], sleep_quantum=10)
       self.filename_cache_refresh_scheduler.start()
+
+
 
   def hms(self, t):
     """Return a string hhhh:mm:ss for a time in seconds."""
@@ -777,6 +779,18 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     return string.join(links, '\n')
 
+  def make_playlist(self, songs):
+    playlist = ['#EXTM3U\n']
+    for song in songs:
+      (name, _) = os.path.splitext(song.split('/')[-1])
+      name = urllib.unquote(name)
+      name = name.replace('_', ' ')
+      playlist.append('#EXTINF:0,%s\n' % name)
+      playlist.append(song)
+                      
+    f = StringIO.StringIO(string.join(playlist, ''))
+    return f
+    
   def make_list(self, fullpath, url, recursive, shuffle, songs=None):
     # This routine takes a string for 'fullpath' and 'url', a list for
     # 'songs' and a boolean for 'recursive' and 'shuffle'. If recursive is
@@ -876,8 +890,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # generate the list of URLs to the songs
         songs = self.make_list(fullpath, url, recursive, shuffle)
-
-        f = StringIO.StringIO(string.join(songs, ''))
+        f = self.make_playlist(songs)
         clen = len(f.getvalue())
       else:
         base, ext = os.path.splitext(base)
