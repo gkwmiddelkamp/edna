@@ -895,7 +895,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       else:
         base, ext = os.path.splitext(base)
         if extensions.has_key(string.lower(ext)):
-          f = StringIO.StringIO(self.build_url(url, base) + ext + '\n')
+          f = self.make_playlist([self.build_url(url, base) + ext])
           clen = len(f.getvalue())
         else:
           f = self.open_playlist(fullpath, url)
