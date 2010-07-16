@@ -18,10 +18,14 @@ input#searchtext {
     border: 1px solid #97a5a9; 
     background-color: #ffffff;
     padding: 1pt 6pt;
+    background: -moz-linear-gradient(90deg, #ffffff, #d0d0d0); /* Firefox */
+    background: -webkit-gradient(linear, 0 top, 0 bottom, from(#d0d0d0), to(#ffffff)); /* Webkit */
 }
 
 input#searchsubmit {
     background-color: #e0eaed;
+    background: -moz-linear-gradient(-90deg, #f0fafd, #b0babd); /* Firefox */
+    background: -webkit-gradient(linear, 0 top, 0 bottom, from(#f0fafd), to(#b0babd)); /* Webkit */
     border-radius: 10px;
     -moz-border-radius: 10px; /* Firefox */
     -webkit-border-radius: 10px; /* Webkit */
