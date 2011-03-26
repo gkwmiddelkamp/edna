@@ -27,7 +27,7 @@
 #   $Id: edna.py,v 1.84 2006/05/26 01:15:56 syrk Exp $
 #
 
-__version__ = '0.6-plux-fork'
+__version__ = '0.6.1-Kohlrabi-fork'
 
 import SocketServer
 import BaseHTTPServer
@@ -394,6 +394,10 @@ def Server_collect_filenames(context, dirname, filenames):
       resultlist.append((rootname, reldir, filename))
 
 class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+
+  def address_string(self):
+    host, port = self.client_address[:2]
+    return host
 
   def do_GET(self):
     try:
@@ -930,21 +934,23 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_error(404)
       return
 
-    self.send_response(200)
-    self.send_header("Content-Type", type)
-    self.send_header("Content-Length", clen)
-    if mtime:
-      self.send_header('Last-Modified', time.strftime("%a, %d %b %Y %T GMT"))
-    # Thanks to Stefan Alfredsson <stefan@alfredsson.org>
-    # for the suggestion, Now the filenames get displayed right.
-    self.send_header("icy-name", base)
-    self.end_headers()
-
     #Seek if the client requests it (a HTTP/1.1 request)
     if range:
       type, seek = string.split(range,'=')
       startSeek, endSeek = string.split(seek,'-')
       f.seek(int(startSeek))
+      clen = clen - int(startSeek)
+      
+    self.send_response(200)
+    self.send_header("Content-Type", type)
+    self.send_header("Content-Length", clen)
+    self.send_header("Accept-Ranges", "bytes")
+    if mtime:
+      self.send_header('Last-Modified', self.date_time_string(mtime))
+    # Thanks to Stefan Alfredsson <stefan@alfredsson.org>
+    # for the suggestion, Now the filenames get displayed right.
+    self.send_header("icy-name", base)
+    self.end_headers()
 
     while 1:
       data = f.read(8192)
@@ -1203,28 +1209,75 @@ def check_new(ctime):
 
 
 
-# Extensions that WinAMP can handle: (and their MIME type if applicable)
+# Extensions that WinAMP and foobar2000 can handle: (and their MIME type if applicable)
 extensions = {
-  '.mp3' : 'audio/mpeg',
+  '.669' : 'audio/x-mod',
+  '.8svx' : 'audio/x-8svx',
+  '.aac' : 'audio/aac',
+  '.afc' : 'audio/x-aiff',
+  '.aif' : 'audio/x-aiff',
+  '.aifc' : 'audio/x-aiff',
+  '.aiff' : 'audio/x-aiff',
+  '.am' : 'audio/x-mod',
+  '.au' : 'audio/basic',
+  '.dsm' : 'audio/x-mod',
+  '.far' : 'audio/x-mod', # Not supported by foobar2000 yet?
+  '.fla' : 'audio/flac',
+  '.flac' : 'audio/flac',
+  '.gmf' : 'audio/mid',
+  '.hmi' : 'audio/mid',
+  '.hmp' : 'audio/mid',
+  '.it' : 'audio/x-mod',
+  '.itz' : 'audio/x-mod',
+  '.j2b' : 'audio/x-mod',
+  '.m4a' : 'audio/mp4a-latm',
+  '.m4b' : 'audio/mp4a-latm',
+  '.mdz' : 'audio/x-mod',
   '.mid' : 'audio/mid',
-  '.mp2' : 'video/mpeg',        ### is this audio or video? my Windows box
+  '.midi' : 'audio/mid',
+  '.mids' : 'audio/mid',
+  '.mka' : 'audio/x-matroska',
+  '.mo3' : 'audio/x-mod',
+  '.mod' : 'audio/x-mod',
+  '.mp+' : 'audio/musepack',
+  '.mp1' : 'audio/mpeg',
+  '.mp2' : 'audio/mpeg',
+  '.mp3' : 'audio/mpeg',
+  '.mpc' : 'audio/musepack',
+  '.mpp' : 'audio/musepack',
+  '.mtm' : 'audio/x-mod',
+  '.mtz' : 'audio/x-mod',
+  '.mus' : 'audio/mid',
+  '.oga' : 'audio/ogg',
+  '.ogg' : 'audio/ogg',
+  '.psm' : 'audio/x-mod',
+  '.ptm' : 'audio/x-mod',
+  '.ptz' : 'audio/x-mod',
+  '.rmi' : 'audio/mid',
+  '.s3m' : 'audio/x-mod',
+  '.s3z' : 'audio/x-mod',
+  '.snd' : 'audio/basic',
+  '.spx' : 'audio/ogg',
+  '.stm' : 'audio/x-mod',
+  '.stz' : 'audio/x-mod',
+  '.svx' : 'audio/x-8svx',
+  '.ult' : 'audio/x-mod', # Not supported by foobar2000 yet?
+  '.umx' : 'audio/x-mod',
+  '.w64' : 'audio/x-wav',
+  '.wav' : 'audio/x-wav',
+  '.wave' : 'audio/x-wav',
+  '.wma' : 'audio/x-ms-wma',
+  '.wv' : 'audio/wavpack',
+  '.xm' : 'audio/x-mod',
+  '.xmi' : 'audio/mid',
+  '.xmz' : 'audio/x-mod',
+   '.mp2' : 'video/mpeg',        ### is this audio or video? my Windows box
                                 ### says video/mpeg
 #  '.cda',                      ### what to do with .cda?
-  '.it'  : 'audio/mid',
-  '.xm'  : 'audio/mid',
-  '.s3m' : 'audio/mid',
-  '.stm' : 'audio/mid',
-  '.mod' : 'audio/mid',
-  '.dsm' : 'audio/mid',
-  '.far' : 'audio/mid',
-  '.ult' : 'audio/mid',
-  '.mtm' : 'audio/mid',
-  '.669' : 'audio/mid',
   '.asx' : 'video/x-ms-asf',
   '.avi' : 'video/x-msvideo',
   '.mpg' : 'video/mpeg',
   '.ogg' : 'application/x-ogg',
-  '.m4a' : 'audio/mp4',
   '.mp4' : 'video/mp4',  
   '.css' : 'text/css',         ### style sheets
   }
