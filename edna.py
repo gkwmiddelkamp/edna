@@ -1106,15 +1106,16 @@ class FileInfo:
     if ext == '.ogg':
       info = OggInfo(fullpath)
       self.__dict__.update(info.__dict__)
-    else:
+    elif ext == '.mp3':
       info = MP3Info.MP3Info(open(fullpath, 'rb'))
       self.__dict__.update(info.__dict__)
-      self.total_time = info.mpeg.total_time;
-      self.filesize = info.mpeg.filesize2
-      self.bitrate = int(info.mpeg.bitrate)
-      self.samplerate = info.mpeg.samplerate/1000
-      self.mode = info.mpeg.mode
-      self.mode_extension = info.mpeg.mode_extension
+    else:
+      self.total_time = 0;
+      self.filesize = 0
+      self.bitrate = "unknown"
+      self.samplerate = "unknown"
+      self.mode = ""
+      self.mode_extension = ""
 
       
 #    if hasattr(info, 'length'):
