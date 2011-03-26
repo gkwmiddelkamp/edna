@@ -77,15 +77,11 @@ def _from_synch_safe(synchsafe):
     return (((b3 * x + b2) * x + b1) * x + b0)
 
 def _strip_zero(s):
-    start = 0
-    while start < len(s) and (s[start] == '\0' or s[start] == ' '):
-        start = start + 1
-
-    end = len(s) - 1
-    while end >= 0 and (s[end] == '\0' or s[end] == ' '):
-        end = end - 1
-
-    return s[start:end+1]
+    """
+    strips whitespace from string, and ETX
+    """
+    import string
+    return s.strip(string.whitespace+'\3')
 
 class Error(Exception):
     pass
@@ -290,7 +286,7 @@ class ID3v2:
                 break
 
             self.frames = self.frames + [frame]
-            self.tags[frame.name] = frame.data
+            self.tags[frame.name] = _strip_zero(frame.data)
 
 _bitrates = [
     [ # MPEG-2 & 2.5
@@ -635,7 +631,7 @@ class MP3Info:
                     else:
                         self.genre = ""
             elif tag == 'TEN' or tag == 'TENC':
-                self.encoder = self.id3.tags[tag]
+                self.encoder = self.id3.tags[tag].strip('\3')
 
 if __name__ == '__main__':
     import sys
