@@ -286,7 +286,7 @@ class ID3v2:
                 break
 
             self.frames = self.frames + [frame]
-            self.tags[frame.name] = _strip_zero(frame.data)
+            self.tags[frame.name] = frame.data
 
 _bitrates = [
     [ # MPEG-2 & 2.5
@@ -631,7 +631,7 @@ class MP3Info:
                     else:
                         self.genre = ""
             elif tag == 'TEN' or tag == 'TENC':
-                self.encoder = self.id3.tags[tag].strip('\3')
+                self.encoder = self.id3.tags[tag]
 
 if __name__ == '__main__':
     import sys
