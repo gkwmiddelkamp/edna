@@ -79,6 +79,7 @@
     <td id="bottom" colspan="3">
       <a href="all.m3u">Play all songs</a>&nbsp; |&nbsp;
       <a href="all.zip">Download .zip</a>&nbsp; |&nbsp;
+      <a href="all.tar">Download .tar</a>&nbsp; |&nbsp;
       <a href="shuffle.m3u">Shuffle all songs</a>
     </td>
   </tr>

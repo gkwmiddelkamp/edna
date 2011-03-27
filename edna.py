@@ -27,7 +27,7 @@
 #   $Id: edna.py,v 1.84 2006/05/26 01:15:56 syrk Exp $
 #
 
-__version__ = '0.6.1-Kohlrabi-fork'
+__version__ = '0.6.2-Kohlrabi-fork'
 
 import SocketServer
 import BaseHTTPServer
@@ -44,6 +44,8 @@ import random
 import time
 import struct
 import zipfile
+import tarfile
+import tempfile
 import ezt
 import MP3Info
 import md5
@@ -128,6 +130,7 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
     d['hide_names'] = ""
     d['hide_matching'] = ""
     d['zip'] = '0'
+    d['tar'] = '0'
     d['refresh_offset'] = 0
     d['refresh_interval'] = 0
     d['https'] = '0'
@@ -155,6 +158,8 @@ class Server(mixin, BaseHTTPServer.HTTPServer):
     self.fileinfo = config.getint('server', 'fileinfo')
     self.zipmax = config.getint('server', 'zip') * 1024 * 1024
     self.zipsize = 0
+    self.tarmax = config.getint('server', 'tar') * 1024 * 1024
+    self.tarsize = 0    
 
     global debug_level
     debug_level = config.getint('extra', 'debug_level')
@@ -534,7 +539,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       for p in path:
         if p == 'all.m3u' or p == 'allrecursive.m3u' or \
            p == 'shuffle.m3u' or p == 'shufflerecursive.m3u' or \
-           p == 'all.zip':
+           p == 'all.zip' or p == 'all.tar':
           # serve up a pseudo-file
           self.serve_file(p, curdir, url)
           return
@@ -922,7 +927,7 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       z.close()
       f.seek(0)
       clen = len(f.getvalue())
-      self.server.debug_message("ZUP thresholds: %d + %d vs %d" %
+      self.server.debug_message("ZIP thresholds: %d + %d vs %d" %
                                 (self.server.zipsize, clen, self.server.zipmax))
 
       if self.server.zipsize + clen > self.server.zipmax:
@@ -930,6 +935,32 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return
 
       self.server.zipsize += clen
+      
+    elif name == 'all.tar':
+      if not self.server.tarmax > 0:
+        self.send_error(403, 'The tar service has been disabled by the server administrator.')
+        return
+      
+      type = 'application/x-tar'
+      f = tempfile.NamedTemporaryFile()
+      z = tarfile.open(f.name,mode='w')
+      songs = self.make_list(fullpath, None, None, None)
+      for s in songs:
+        z.add(fullpath + '/' + s, os.path.basename(fullpath) + '/' + s)
+        clen = os.stat(f.name).st_size
+        if self.server.tarsize + clen > self.server.tarmax:
+          break
+      
+      z.close()
+      clen = os.stat(f.name).st_size
+      f.seek(0)
+      self.server.debug_message("tar thresholds: %d + %d vs %d" % (self.server.tarsize, clen, self.server.tarmax))
+      if self.server.tarsize + clen > self.server.tarmax:
+        self.send_error(503, 'The <b>tar</b> serice is currently under heavy load. Please try again later')
+        return
+      
+      self.server.tarsize += clen      
+      
     else:
       self.send_error(404)
       return
@@ -964,9 +995,14 @@ class EdnaRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       except socket.error:
         # it was probably closed on the other end
         break
-
+        
     if type == 'application/zip':
       self.server.zipsize -= clen
+    elif type == 'application/x-tar':
+      self.server.tarsize -= clen
+      f.close()
+      self.server.debug_message("Temporary tarfile closed? "+str(f.closed))
+      
 
   def build_url(self, url, file=''):
     host = self.server.name_prefix or self.headers.getheader('host') or self.server.server_name

@@ -1,3 +1,9 @@
+Changes since 0.6 [2011/03/27]:
+- Use id3reader instead of the old code to read ID3v1/2 information
+- Fixed seeking in streams (fixes metainfo in foobar2000)
+- Added several new MIME types
+- Added tar file support
+
 Changes since 0.5 [2003/05/19]:
 - New auth_level level to help with players unable to handle authentication
 - Updated daemon/edna to support SuSE [by Bill Burdick SF#1225231]
