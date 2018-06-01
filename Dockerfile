@@ -6,7 +6,9 @@ ADD daemon/* /opt/edna/daemon/
 ADD ntsvc/* /opt/edna/ntsvc/
 ADD resources/* /opt/edna/resources/
 ADD www/* /opt/edna/www/
+ADD www/images/* /opt/edna/www/images/
 ADD templates/* /opt/edna/templates/
+ADD templates/css/* /opt/edna/templates/css/
 
 ADD MP3Info.py /opt/edna/MP3Info.py
 ADD edna.py /opt/edna/edna.py
