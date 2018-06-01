@@ -6,6 +6,7 @@ ADD daemon/* /opt/edna/daemon/
 ADD ntsvc/* /opt/edna/ntsvc/
 ADD resources/* /opt/edna/resources/
 ADD www/* /opt/edna/www/
+ADD templates/* /opt/edna/templates/
 
 ADD MP3Info.py /opt/edna/MP3Info.py
 ADD edna.py /opt/edna/edna.py
@@ -16,5 +17,7 @@ ADD edna.conf /opt/edna/edna.conf
 
 EXPOSE 9090
 
-CMD [ "/opt/edna/edna.py"]
+RUN mkdir /mp3
+
+CMD [ "/opt/edna/edna.py", "/opt/edna/edna.conf"]
 

@@ -1398,7 +1398,7 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null',pname=''
     '''
     # Do first fork.
     try: 
-        pid = os.fork() 
+        pid = os.fork()
         if pid > 0:
             sys.exit(0) # Exit first parent.
     except OSError, e: 
@@ -1448,6 +1448,6 @@ if __name__ == '__main__':
     raise systemExit
 
   if daemon_mode:
-    daemonize('/dev/null', '/var/log/edna.log', '/var/log/edna.log', '/var/run/edna.pid')
+    daemonize('/dev/null', '/dev/stdout', '/dev/stderr', '/var/run/edna.pid')
 
   run_server(fname)
